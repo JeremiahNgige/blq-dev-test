@@ -7,8 +7,6 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 import '../../config_keys/config_keys.dart';
-import '../../models/chart_user.dart';
-import '../../models/chat_message.dart';
 
 class HomeChatViewModel extends FutureViewModel with sendChat, init, channels {
   final NavigationService _navigationService = locator<NavigationService>();
@@ -21,15 +19,12 @@ class HomeChatViewModel extends FutureViewModel with sendChat, init, channels {
 
   @override
   void disposeValues() {
-    // TODO: implement disposeValues
     _chatController.dispose();
     notifyListeners();
   }
 
   @override
   Future<void> initialiseValues() async {
-    // TODO: implement initialiseValues
-    // SendbirdChat.addChannelHandler('MyChannelHandler', _myOpenChannelHandler);
     _isLoading = true;
     _chatController = TextEditingController();
     _hasPrevious = false;
@@ -82,11 +77,6 @@ class HomeChatViewModel extends FutureViewModel with sendChat, init, channels {
   }
 
   @override
-  void sendText(String message) {
-    // TODO: implement sendText
-  }
-
-  @override
   Future futureToRun() async {
     await initialiseValues().timeout(const Duration(seconds: 30),
         onTimeout: () async {
@@ -122,7 +112,6 @@ class HomeChatViewModel extends FutureViewModel with sendChat, init, channels {
 
   @override
   void initialisePage(String channelUrl) {
-    // TODO: implement initialisePage
     OpenChannel.getChannel(channelUrl).then((openChannel) {
       _query = PreviousMessageListQuery(
         channelType: ChannelType.open,
@@ -141,7 +130,6 @@ class HomeChatViewModel extends FutureViewModel with sendChat, init, channels {
 
   @override
   void addMessage(BaseMessage message, String channelUrl) {
-    // TODO: implement addMessage
     OpenChannel.getChannel(channelUrl).then((openChannel) {
       _messages.add(message);
       _title = '${openChannel.name} (${messages.length})';
