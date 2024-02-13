@@ -11,6 +11,7 @@ import 'package:stacked_shared/stacked_shared.dart';
 import 'package:stacked_themes/stacked_themes.dart';
 
 import '../services/api_service.dart';
+import '../services/openHandlerService.dart';
 
 final locator = StackedLocator.instance;
 
@@ -25,5 +26,6 @@ Future<void> setupLocator({
 // Register dependencies
   locator.registerLazySingleton(() => NavigationService());
   locator.registerLazySingleton(() => ApiService());
+  locator.registerLazySingleton(() => MyOpenChannelHandler());
   locator.registerLazySingleton(() => ThemeService.getInstance());
 }

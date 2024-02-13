@@ -1,3 +1,4 @@
+import 'package:blq_developer_test/services/openHandlerService.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -9,6 +10,7 @@ import '../ui/homechat/homechat_view.dart';
   dependencies: [
     LazySingleton(classType: NavigationService),
     LazySingleton(classType: ApiService),
+    LazySingleton(classType: MyOpenChannelHandler)
   ],
 
   //routes

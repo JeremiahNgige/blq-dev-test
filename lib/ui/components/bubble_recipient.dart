@@ -19,7 +19,7 @@ Widget recipientBubble(BuildContext context, String message, String time,
             width: 20,
             margin: Spacing.all(10),
             child: Image.asset(
-              Images.profile1,
+              image,
               fit: BoxFit.cover,
             ),
           ),

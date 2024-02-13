@@ -3,16 +3,20 @@ import 'package:blq_developer_test/ui/components/bubble_sender.dart';
 import 'package:blq_developer_test/ui/components/custom_textfiled/custom_textfiled_view.dart';
 import 'package:blq_developer_test/ui/homechat/homechat_viewmodel.dart';
 import 'package:blq_developer_test/utils/custom_colors.dart';
-import 'package:dash_chat/dash_chat.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_hooks/stacked_hooks.dart';
 
 import '../../utils/sizes.dart';
 
-class HomeChatView extends StatelessWidget {
+class HomeChatView extends StatefulWidget {
   const HomeChatView({super.key});
 
+  @override
+  State<HomeChatView> createState() => _HomeChatViewState();
+}
+
+class _HomeChatViewState extends State<HomeChatView> {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
@@ -20,11 +24,67 @@ class HomeChatView extends StatelessWidget {
       viewModelBuilder: () => HomeChatViewModel(),
       onViewModelReady: (model) => model.initialiseValues(),
       builder: (context, model, child) => Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leading: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                model.back();
+              },
+              splashColor: ColorResources.shimmerBaseColor,
+              child: const Icon(
+                Icons.arrow_back_ios_new_outlined,
+              ),
+            ),
+          ),
+          centerTitle: true,
+          title: Text(
+            'BLQ TEST',
+            style: theme.textTheme.titleMedium!
+                .copyWith(fontWeight: FontWeight.w900),
+          ),
+          actions: [
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {},
+                splashColor: ColorResources.shimmerBaseColor,
+                child: const Icon(
+                  Icons.menu_outlined,
+                ),
+              ),
+            )
+          ],
+        ),
         body: SafeArea(
-            child: DashChat(
-                messages: [],
-                user: ChatUser.fromJson({}),
-                onSend: (dashChatMessage) {})),
+          child: (model.isLoading)
+              ? const SizedBox.shrink()
+              : Container(
+                  margin: Spacing.all(8),
+                  child: ListView.builder(
+                      itemCount: model.messages.length,
+                      itemBuilder: (context, index) => (!model
+                              .checkIsCurrentUser(
+                                  model.messages[index].mentionedUsers[0]))
+                          ? messages(
+                              context,
+                              false,
+                              model.messages[index].data!,
+                              model.messages[index].mentionedUsers[0].nickname,
+                              model.messages[index].createdAt.toString(),
+                              model
+                                  .messages[index].mentionedUsers[0].profileUrl)
+                          : messages(
+                              context,
+                              true,
+                              model.messages[index].data!,
+                              model.messages[index].mentionedUsers[0].nickname,
+                              model.messages[index].createdAt.toString(),
+                              model.messages[index].mentionedUsers[0]
+                                  .profileUrl))),
+        ),
+        bottomSheet: const BottomChatOption(),
       ),
     );
   }
@@ -38,7 +98,7 @@ class BottomChatOption extends StackedHookView<HomeChatViewModel> {
     var theme = Theme.of(context);
     return Container(
       padding: Spacing.all(10),
-      color: theme.cardColor.withOpacity(0.3),
+      color: theme.cardColor,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -58,12 +118,16 @@ class BottomChatOption extends StackedHookView<HomeChatViewModel> {
           ),
           SizedBox(
             child: CustomTextField(
-                controller: model.chatController,
-                errorTextId: 'enter chat',
-                hint: 'Enter Text',
-                validationMessage: '',
-                inputType: TextInputType.text,
-                label: ''),
+              controller: model.chatController,
+              errorTextId: 'enter chat',
+              hint: 'Enter Text',
+              validationMessage: '',
+              inputType: TextInputType.text,
+              label: '',
+              callback: () {
+                model.sendMessage(model.chatController.text, model.channel);
+              },
+            ),
           )
         ],
       ),

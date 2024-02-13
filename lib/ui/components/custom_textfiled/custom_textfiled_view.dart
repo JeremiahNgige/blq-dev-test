@@ -15,6 +15,7 @@ class CustomTextField extends StatelessWidget {
   final String? errorTextId;
   final Widget? prefix;
   final bool? enabled;
+  final VoidCallback callback;
 
   const CustomTextField(
       {super.key,
@@ -25,6 +26,7 @@ class CustomTextField extends StatelessWidget {
       required this.hint,
       required this.validationMessage,
       required this.inputType,
+      required this.callback,
       required this.label});
 
   @override
@@ -34,9 +36,9 @@ class CustomTextField extends StatelessWidget {
       viewModelBuilder: () => CustomTextFieldViewModel(),
       builder: (context, model, child) => Container(
         height: 60,
-        padding: Spacing.all(7),
+        padding: Spacing.all(15),
         width: MediaQuery.of(context).size.width * 0.80,
-        margin: const EdgeInsets.only(top: 5, bottom: 5),
+        margin: const EdgeInsets.only(top: 5, bottom: 10),
         alignment: Alignment.center,
         decoration: BoxDecoration(
             color: theme.cardColor,
@@ -67,16 +69,19 @@ class CustomTextField extends StatelessWidget {
             focusColor: Colors.pink,
             isDense: true,
             filled: true,
-            suffixIcon: Card(
+            suffixIcon: Material(
               color: ColorResources.primaryColor.withAlpha(250),
               elevation: 2,
-              margin: Spacing.all(1),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(100)),
-              child: Icon(
-                Icons.arrow_upward,
-                color: theme.primaryColorDark,
-                size: 13,
+              child: InkWell(
+                onTap: callback,
+                splashColor: ColorResources.shimmerBaseColor!.withOpacity(0.3),
+                child: Icon(
+                  Icons.arrow_upward,
+                  color: theme.primaryColorDark,
+                  size: 13,
+                ),
               ),
             ),
             fillColor: theme.cardColor,

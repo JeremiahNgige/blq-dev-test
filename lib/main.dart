@@ -1,9 +1,7 @@
 import 'package:blq_developer_test/config_keys/config_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:sendbird_sdk/core/channel/group/group_channel.dart';
-import 'package:sendbird_sdk/core/channel/open/open_channel.dart';
-import 'package:sendbird_sdk/sdk/sendbird_sdk_api.dart';
+import 'package:sendbird_chat_sdk/sendbird_chat_sdk.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:stacked_themes/stacked_themes.dart';
 
@@ -13,17 +11,16 @@ import 'app_theme/app_theme.dart';
 
 void main() async {
   setupLocator();
-
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeManager.initialise();
-  try {
-    final sendbird = SendbirdSdk(appId: Config.applicationId);
-    // final user = await sendbird.connect(Config.userId);
-    final channel = await OpenChannel.getChannel(Config.openChannel);
-    await channel.enter();
-  } catch (e) {
-    //error
-  }
+
+  await SendbirdChat.init(
+    appId: Config.applicationId,
+    options: SendbirdChatOptions(useCollectionCaching: true),
+  );
+
+  await SendbirdChat.connect('',
+      apiHost: Config.url, accessToken: Config.apiToken);
   runApp(const MyApp());
 }
 

@@ -45,8 +45,8 @@ dependencies:
   google_fonts:
   dio:
   get:
-  sendbird_sdk:
-  dash_chat:
+  sendbird_chat_sdk:
+  flutter_spinkit:
 
 dev_dependencies:
   flutter_test:
