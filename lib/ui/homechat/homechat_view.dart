@@ -61,28 +61,26 @@ class _HomeChatViewState extends State<HomeChatView> {
           child: (model.isLoading)
               ? const SizedBox.shrink()
               : Container(
-                  margin: Spacing.all(8),
+                  margin: Spacing.fromLTRB(8, 8, 8, 100),
                   child: ListView.builder(
                       itemCount: model.messages.length,
-                      itemBuilder: (context, index) => (!model
-                              .checkIsCurrentUser(
-                                  model.messages[index].mentionedUsers[0]))
-                          ? messages(
-                              context,
-                              false,
-                              model.messages[index].data!,
-                              model.messages[index].mentionedUsers[0].nickname,
-                              model.messages[index].createdAt.toString(),
-                              model
-                                  .messages[index].mentionedUsers[0].profileUrl)
-                          : messages(
-                              context,
-                              true,
-                              model.messages[index].data!,
-                              model.messages[index].mentionedUsers[0].nickname,
-                              model.messages[index].createdAt.toString(),
-                              model.messages[index].mentionedUsers[0]
-                                  .profileUrl))),
+                      itemBuilder: (context, index) =>
+                          (model.checkIsCurrentUser(
+                                  model.messages[index].sender!))
+                              ? messages(
+                                  context,
+                                  false,
+                                  model.messages[index].message,
+                                  model.messages[index].sender!.nickname,
+                                  model.messages[index].createdAt.toString(),
+                                  model.messages[index].sender!.profileUrl)
+                              : messages(
+                                  context,
+                                  true,
+                                  model.messages[index].message,
+                                  model.messages[index].sender!.nickname,
+                                  model.messages[index].createdAt.toString(),
+                                  model.messages[index].sender!.profileUrl))),
         ),
         bottomSheet: const BottomChatOption(),
       ),

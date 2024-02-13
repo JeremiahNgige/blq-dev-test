@@ -1,6 +1,6 @@
+import 'package:blq_developer_test/utils/image.dart';
 import 'package:flutter/material.dart';
 
-import '../../utils/image.dart';
 import '../../utils/sizes.dart';
 
 Widget recipientBubble(BuildContext context, String message, String time,
@@ -19,7 +19,7 @@ Widget recipientBubble(BuildContext context, String message, String time,
             width: 20,
             margin: Spacing.all(10),
             child: Image.asset(
-              image,
+              (image != "") ? image : Images.profile1,
               fit: BoxFit.cover,
             ),
           ),

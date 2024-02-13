@@ -35,8 +35,8 @@ class CustomTextField extends StatelessWidget {
     return ViewModelBuilder<CustomTextFieldViewModel>.reactive(
       viewModelBuilder: () => CustomTextFieldViewModel(),
       builder: (context, model, child) => Container(
-        height: 60,
-        padding: Spacing.all(15),
+        height: 50,
+        padding: Spacing.all(3),
         width: MediaQuery.of(context).size.width * 0.80,
         margin: const EdgeInsets.only(top: 5, bottom: 10),
         alignment: Alignment.center,
@@ -53,18 +53,15 @@ class CustomTextField extends StatelessWidget {
               theme.textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w500),
           keyboardType: inputType,
           decoration: InputDecoration(
-            hintText: hint,
-            labelText: label,
+            hintText: '',
+            labelText: '',
             labelStyle: const TextStyle(color: Colors.grey),
             border: OutlineInputBorder(
               borderSide: const BorderSide(color: Colors.white),
               borderRadius: BorderRadius.circular(10),
             ),
             enabledBorder: InputBorder.none,
-            errorBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: theme.colorScheme.error),
-              borderRadius: BorderRadius.circular(5),
-            ),
+            errorBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
             focusColor: Colors.pink,
             isDense: true,
@@ -80,7 +77,7 @@ class CustomTextField extends StatelessWidget {
                 child: Icon(
                   Icons.arrow_upward,
                   color: theme.primaryColorDark,
-                  size: 13,
+                  size: 25,
                 ),
               ),
             ),
@@ -88,11 +85,9 @@ class CustomTextField extends StatelessWidget {
             hintStyle: theme.textTheme.bodyLarge!.copyWith(
                 fontWeight: FontWeight.w500,
                 color: theme.colorScheme.onBackground),
-            contentPadding: Spacing.all(5),
+            contentPadding: Spacing.all(0),
           ),
-          validator: (value) {
-            return model.validate(value, errorTextId);
-          },
+          validator: (value) {},
           controller: controller,
           autofocus: true,
         ),

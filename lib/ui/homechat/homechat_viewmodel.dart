@@ -29,38 +29,48 @@ class HomeChatViewModel extends FutureViewModel with sendChat, init, channels {
   @override
   Future<void> initialiseValues() async {
     // TODO: implement initialiseValues
-    SendbirdChat.addChannelHandler('MyChannelHandler', _myOpenChannelHandler);
+    // SendbirdChat.addChannelHandler('MyChannelHandler', _myOpenChannelHandler);
     _isLoading = true;
     _chatController = TextEditingController();
-    _channel = await OpenChannel.getChannel(Config.openChannel);
+    _hasPrevious = false;
+    _title = '';
+    _participantCount = 0;
+    _messages = [];
+    _channel = OpenChannel(
+        participantCount: _participantCount, operators: [], channelUrl: '');
+    notifyListeners();
+    // SendbirdChat.addChannelHandler('OpenChannel', MyOpenChannelHandler(this));
+    // SendbirdChat.addConnectionHandler('OpenChannel', MyConnectionHandler(this));
+
+    OpenChannel.getChannel(Config.openChannel).then((openChannel) {
+      _channel = openChannel;
+      notifyListeners();
+      openChannel.enter().then((_) => initialisePage(Config.openChannel));
+    });
 
     notifyListeners();
-    try {
-      // final openChannel = ;
-      // Call the instance method of the result object in the openChannel parameter of the callback method.
-      await _channel.enter();
-      // The current user successfully enters the open channel as a participant,
-      // and can chat with other users in the channel using APIs.
-      final params = MessageListParams()
-        ..inclusive = true
-        ..previousResultSize = 10
-        ..nextResultSize = 0;
-
-      final result = await _channel.getMessagesByTimestamp(
-        double.maxFinite.toInt(),
-        params,
-      );
-      _messages = result;
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      // Handle error.
-    }
+    // final openChannel = ;
+    // Call the instance method of the result object in the openChannel parameter of the callback method.
+    // The current user successfully enters the open channel as a participant,
+    // and can chat with other users in the channel using APIs.
+    // final params = MessageListParams()
+    //   ..inclusive = true
+    //   ..previousResultSize = 10
+    //   ..nextResultSize = 10;
+    //
+    // final result = await _channel.getMessagesByTimestamp(
+    //   double.maxFinite.toInt(),
+    //   params,
+    // );
+    // // _messages = result;
+    _isLoading = false;
+    notifyListeners();
   }
 
   @override
   void onMessageReceived(BaseChannel channel, BaseMessage message) {
     if (message is UserMessage) {
+      _messages.add(message);
     } else if (message is FileMessage) {
       // ...
     } else if (message is AdminMessage) {
@@ -77,26 +87,6 @@ class HomeChatViewModel extends FutureViewModel with sendChat, init, channels {
   }
 
   @override
-  List<ChatMessage> asDashChatMessage(List<BaseMessage> messages) {
-    List<ChatMessage>? chatMessages;
-    for (BaseMessage sMessage in messages) {
-      chatMessages!.add(ChatMessage(
-          text: sMessage.message, user: asDashChatUser(sMessage.sender!)));
-    }
-    return chatMessages!;
-  }
-
-  @override
-  ChatUser asDashChatUser(User user) {
-    return user == null
-        ? ChatUser(uid: '', name: '', avatar: '')
-        : ChatUser(
-            uid: user.userId,
-            name: user.nickname ?? '',
-            avatar: user.profileUrl ?? '');
-  }
-
-  @override
   Future futureToRun() async {
     await initialiseValues().timeout(const Duration(seconds: 30),
         onTimeout: () async {
@@ -107,39 +97,57 @@ class HomeChatViewModel extends FutureViewModel with sendChat, init, channels {
 
   @override
   bool checkIsCurrentUser(User user) {
-    // if (user != _sendbirdSdk.currentUser) return false;
+    if (user.userId != 'jeremiahngigeb') return false;
     return true;
   }
 
   @override
   void sendMessage(String text, OpenChannel channel) {
-    final params = UserMessageCreateParams(message: 'MESSAGE')
-      ..data = 'DATA'
-      ..customType = 'CUSTOM_TYPE'
-      ..mentionType = MentionType
-          .users // This could be either MentionType.users or MentionType.channel.
-      ..metaArrays = [
-        MessageMetaArray(key: 'itemType', value: ['tablet']),
-        MessageMetaArray(key: 'quality', value: ['best', 'good']),
-      ]
-      ..translationTargetLanguages = [
-        'fr',
-        'de'
-      ] // French and German, respectively.
-      ..pushNotificationDeliveryOption = PushNotificationDeliveryOption.normal;
-    try {
-      final message = channel.sendUserMessage(params, handler: (message, e) {
-        // The message is successfully sent to the channel.
-        // The current user can receive messages from other users
-        // through the onMessageReceived() method in event handlers.
-      });
-    } catch (e) {
-      // Handle error.
-      if (kDebugMode) debugPrint(e.toString());
-    }
-    // final sendMessage = channel.sendUserMessageWithText(text);
-    // _messages.add(sendMessage);
-    // notifyListeners();
+    _channel.sendUserMessage(
+      UserMessageCreateParams(
+        message: _chatController.value.text,
+      ),
+      handler: (UserMessage message, SendbirdException? e) async {
+        if (e != null) {
+          if (kDebugMode) debugPrint(e.toString());
+        } else {
+          addMessage(message, Config.openChannel);
+        }
+      },
+    );
+
+    _chatController.clear();
+    notifyListeners();
+  }
+
+  @override
+  void initialisePage(String channelUrl) {
+    // TODO: implement initialisePage
+    OpenChannel.getChannel(channelUrl).then((openChannel) {
+      _query = PreviousMessageListQuery(
+        channelType: ChannelType.open,
+        channelUrl: channelUrl,
+      )..next().then((messages) {
+          _messages
+            ..clear()
+            ..addAll(messages);
+          _title = '${openChannel.name} (${messages.length})';
+          _hasPrevious = _query.hasNext;
+          _participantCount = openChannel.participantCount;
+          notifyListeners();
+        });
+    });
+  }
+
+  @override
+  void addMessage(BaseMessage message, String channelUrl) {
+    // TODO: implement addMessage
+    OpenChannel.getChannel(channelUrl).then((openChannel) {
+      _messages.add(message);
+      _title = '${openChannel.name} (${messages.length})';
+      _participantCount = openChannel.participantCount;
+      notifyListeners();
+    });
   }
 }
 
@@ -157,26 +165,40 @@ mixin sendChat {
   late TextEditingController _chatController;
 
   TextEditingController get chatController => _chatController;
-
-  void sendText(String message);
 }
 
 mixin channels {
-  late List<RootMessage> _messages;
+  late List<BaseMessage> _messages;
 
-  List<RootMessage> get messages => _messages;
+  List<BaseMessage> get messages => _messages;
 
   late OpenChannel _channel;
 
   OpenChannel get channel => _channel;
 
-  List<ChatMessage> asDashChatMessage(List<BaseMessage> messages);
+  late PreviousMessageListQuery _query;
 
-  ChatUser asDashChatUser(User user);
+  PreviousMessageListQuery get query => _query;
+
+  late String _title;
+
+  String get title => _title;
+
+  late bool _hasPrevious;
+
+  bool get hasPrevious => _hasPrevious;
+
+  late int _participantCount;
+
+  int get participantCount => _participantCount;
+
+  void initialisePage(String channelUrl);
 
   bool checkIsCurrentUser(User user);
 
   void sendMessage(String text, OpenChannel channel);
 
   void onMessageReceived(BaseChannel channel, BaseMessage message);
+
+  void addMessage(BaseMessage message, String channelUrl);
 }

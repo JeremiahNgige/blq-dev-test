@@ -19,8 +19,7 @@ void main() async {
     options: SendbirdChatOptions(useCollectionCaching: true),
   );
 
-  await SendbirdChat.connect('',
-      apiHost: Config.url, accessToken: Config.apiToken);
+  await SendbirdChat.connect('jeremiahngigeb', accessToken: Config.apiToken);
   runApp(const MyApp());
 }
 
